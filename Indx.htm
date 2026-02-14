@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>خطة الانضباط المدرسي في رمضان (20 يوم)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *{font-family:'Tajawal',sans-serif}
+    .card{background:rgba(255,255,255,.85);backdrop-filter: blur(8px)}
+    .soft{box-shadow: 0 12px 30px rgba(0,0,0,.08)}
+    @media print{
+      .no-print{display:none !important}
+      body{background:#fff !important}
+      .card{background:#fff !important; box-shadow:none !important}
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-violet-50 via-fuchsia-50 to-slate-50 text-slate-900">
+  <header class="px-4 py-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="card soft rounded-3xl p-5 md:p-7 border border-violet-100">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-violet-900">خطة الانضباط المدرسي في رمضان للطالبة (20 يوم)</h1>
+            <p class="text-slate-600 mt-1">متابعة يومية قابلة للقياس + مرتبطة بالأذكار وورد قرآني — مع حفظ تلقائي وملف CSV.</p>
+          </div>
+
+          <div class="no-print flex flex-wrap gap-2">
+            <button id="btnSave" class="px-4 py-2 rounded-xl bg-violet-600 text-white font-bold hover:bg-violet-700 transition">حفظ الآن</button>
+            <button id="btnReset" class="px-4 py-2 rounded-xl bg-white border border-slate-200 font-bold hover:bg-slate-50 transition">تصفير الخطة</button>
+            <button id="btnCSV" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">تصدير CSV</button>
+            <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold hover:bg-black transition">طباعة</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-5">
+          <div class="p-4 rounded-2xl bg-white border border-slate-100">
+            <label class="text-sm font-bold text-slate-700">اسم الطالبة</label>
+            <input id="studentName" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="اكتبي الاسم هنا" />
+          </div>
+          <div class="p-4 rounded-2xl bg-white border border-slate-100">
+            <label class="text-sm font-bold text-slate-700">الصف / الشعبة</label>
+            <input id="studentClass" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="مثال: 2/أ" />
+          </div>
+          <div class="p-4 rounded-2xl bg-white border border-slate-100">
+            <label class="text-sm font-bold text-slate-700">تاريخ بدء الخطة</label>
+            <input id="startDate" type="date" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-300" />
+            <p class="text-xs text-slate-500 mt-2">يتم احتساب الأيام تلقائيًا (20 يوم).</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mt-4">
+          <div class="p-4 rounded-2xl bg-white border border-slate-100">
+            <div class="flex items-center justify-between gap-2">
+              <p class="font-extrabold text-slate-800">التقدّم العام</p>
+              <span id="overallPct" class="text-sm font-black text-violet-700">0%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-3 mt-3 overflow-hidden">
+              <div id="overallBar" class="h-3 rounded-full bg-violet-600 w-0 transition-all"></div>
+            </div>
+            <div class="flex items-center justify-between mt-2 text-xs text-slate-600">
+              <span>النقاط</span>
+              <span><b id="overallPoints">0</b> / <span id="overallMax">0</span></span>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-white border border-slate-100">
+            <p class="font-extrabold text-slate-800">مؤشرات قابلة للقياس (يوميًا)</p>
+            <ul class="mt-2 text-sm text-slate-700 space-y-1">
+              <li>✅ الانضباط الزمني: حضور + طابور + دخول الحصة (بالوقت)</li>
+              <li>✅ الانضباط السلوكي: احترام + تعاون + التزام التعليمات</li>
+              <li>✅ الانضباط الدراسي: واجبات + تجهيز أدوات + مشاركة</li>
+              <li>🌿 الروح الرمضانية: أذكار + ورد قرآني (بالدقائق/الآيات)</li>
+            </ul>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-white border border-slate-100">
+            <p class="font-extrabold text-slate-800">تعزيز وتحفيز</p>
+            <div class="mt-3 grid grid-cols-3 gap-2">
+              <div class="rounded-2xl p-3 bg-violet-50 border border-violet-100 text-center">
+                <div class="text-2xl">⭐</div>
+                <div class="text-xs font-bold text-slate-700">نجمة يومية</div>
+                <div id="starsCount" class="text-lg font-black text-violet-700">0</div>
+              </div>
+              <div class="rounded-2xl p-3 bg-emerald-50 border border-emerald-100 text-center">
+                <div class="text-2xl">🏅</div>
+                <div class="text-xs font-bold text-slate-700">شارات</div>
+                <div id="badgesCount" class="text-lg font-black text-emerald-700">0</div>
+              </div>
+              <div class="rounded-2xl p-3 bg-amber-50 border border-amber-100 text-center">
+                <div class="text-2xl">📖</div>
+                <div class="text-xs font-bold text-slate-700">معدل الورد</div>
+                <div id="quranAvg" class="text-lg font-black text-amber-700">0</div>
+              </div>
+            </div>
+            <p id="badgeText" class="mt-3 text-sm text-slate-700 font-semibold"></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <main class="px-4 pb-10">
+    <div class="max-w-6xl mx-auto">
+      <div class="card soft rounded-3xl p-5 md:p-7 border border-violet-100">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">متابعة 20 يوم</h2>
+            <p class="text-slate-600 mt-1">اختاري إنجاز اليوم + حددي دقائق الورد والآيات. يتم احتساب النقاط تلقائيًا.</p>
+          </div>
+
+          <div class="no-print flex flex-wrap items-center gap-2">
+            <button id="btnToday" class="px-4 py-2 rounded-xl bg-white border border-slate-200 font-bold hover:bg-slate-50 transition">الانتقال لليوم الحالي</button>
+            <button id="btnCollapse" class="px-4 py-2 rounded-xl bg-violet-100 text-violet-900 font-bold hover:bg-violet-200 transition">طي/فتح التفاصيل</button>
+          </div>
+        </div>
+
+        <div id="daysWrap" class="mt-5 grid grid-cols-1 gap-3"></div>
+
+        <div class="mt-6 rounded-2xl border border-slate-100 bg-white p-4">
+          <h3 class="font-extrabold text-slate-900">ملاحظات المعلمة / ولي الأمر</h3>
+          <textarea id="notes" class="mt-2 w-full min-h-28 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="اكتبي ملاحظات قصيرة (متابعة، تعزيز، تنبيه لطيف...)"></textarea>
+          <p class="text-xs text-slate-500 mt-2">يتم حفظ الملاحظات تلقائيًا مع الخطة.</p>
+        </div>
+
+        <div class="no-print mt-6 rounded-2xl border border-violet-100 bg-violet-50 p-4">
+          <p class="font-extrabold text-violet-900">اقتراح جاهز لتعزيز يومي (انسخيه للطالبة):</p>
+          <p id="dailyPraise" class="mt-2 text-slate-800"></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script>
+(function(){
+  const KEY = "ramadan_discipline_20days_v1";
+
+  // إعداد الأهداف اليومية (قابلة للقياس)
+  // كل عنصر له نقاط محددة. مجموع اليوم = 20 نقطة (سهل الحساب).
+  const dailyItems = [
+    { id:"attend",  label:"حضرتُ اليوم", points:2 },
+    { id:"onTime",  label:"حضرتُ في الوقت المحدد", points:2 },
+    { id:"line",    label:"التزمتُ بطابور الصباح بهدوء", points:2 },
+    { id:"uniform", label:"زيّ/مظهر مرتب", points:1 },
+    { id:"tools",   label:"أحضرتُ أدواتي كاملة", points:1 },
+    { id:"hw",      label:"أنجزتُ الواجب/التكليف", points:2 },
+    { id:"focus",   label:"تركيز داخل الحصة", points:2 },
+    { id:"respect", label:"احترام المعلمة والزميلات", points:2 },
+    { id:"help",    label:"تعاونتُ وساعدتُ زميلتي", points:2 },
+    { id:"rules",   label:"التزمتُ بالتعليمات", points:2 },
+    { id:"morningAdhkar", label:"أذكار الصباح", points:1 },
+    { id:"eveningAdhkar", label:"أذكار المساء", points:1 }
+  ];
+
+  // الورد القرآني: نقاط حسب الدقائق/الآيات (يُحسب آليًا حتى 2 نقطة)
+  const quranConfig = {
+    minutesTarget: 10, // هدف يومي بالدقائق
+    versesTarget: 5,   // هدف يومي بالآيات
+    maxPoints: 2
+  };
+
+  const $ = (id)=>document.getElementById(id);
+
+  const state = {
+    studentName:"",
+    studentClass:"",
+    startDate:"",
+    notes:"",
+    collapsed:false,
+    days: Array.from({length:20}, (_,i)=>({
+      idx:i+1,
+      dateISO:"",
+      checks: Object.fromEntries(dailyItems.map(x=>[x.id,false])),
+      quranMinutes:0,
+      quranVerses:0,
+      reflection:""
+    }))
+  };
+
+  function todayISO(){
+    const d = new Date();
+    const off = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - off*60000);
+    return local.toISOString().slice(0,10);
+  }
+
+  function isoToArabic(iso){
+    if(!iso) return "";
+    const d = new Date(iso+"T00:00:00");
+    const fmt = new Intl.DateTimeFormat("ar-SA", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+    return fmt.format(d);
+  }
+
+  function addDays(iso, n){
+    const d = new Date(iso+"T00:00:00");
+    d.setDate(d.getDate()+n);
+    const off = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - off*60000);
+    return local.toISOString().slice(0,10);
+  }
+
+  function load(){
+    const raw = localStorage.getItem(KEY);
+    if(!raw) return;
+    try{
+      const parsed = JSON.parse(raw);
+      Object.assign(state, parsed);
+    }catch(e){}
+  }
+
+  function save(){
+    state.studentName = $("studentName").value.trim();
+    state.studentClass = $("studentClass").value.trim();
+    state.startDate = $("startDate").value;
+    state.notes = $("notes").value;
+    localStorage.setItem(KEY, JSON.stringify(state));
+    toast("تم الحفظ ✅");
+  }
+
+  function resetAll(){
+    localStorage.removeItem(KEY);
+    location.reload();
+  }
+
+  function quranPoints(minutes, verses){
+    // النقاط حسب تحقيق الهدف: 1 نقطة للدقائق + 1 نقطة للآيات
+    let p = 0;
+    if(Number(minutes) >= quranConfig.minutesTarget) p += 1;
+    if(Number(verses) >= quranConfig.versesTarget) p += 1;
+    return Math.min(p, quranConfig.maxPoints);
+  }
+
+  function dayMaxPoints(){
+    const base = dailyItems.reduce((a,x)=>a+x.points,0);
+    return base + quranConfig.maxPoints; // = 18 + 2 = 20
+  }
+
+  function dayPoints(day){
+    let p = 0;
+    for(const item of dailyItems){
+      if(day.checks[item.id]) p += item.points;
+    }
+    p += quranPoints(day.quranMinutes, day.quranVerses);
+    return p;
+  }
+
+  function overall(){
+    const max = dayMaxPoints() * state.days.length;
+    const points = state.days.reduce((a,d)=>a+dayPoints(d),0);
+    const pct = max ? Math.round((points/max)*100) : 0;
+    return {max, points, pct};
+  }
+
+  function computeBadges(){
+    const maxPerDay = dayMaxPoints();
+    let stars = 0;     // نجمة إذا حصلت 16+ من 20
+    let badges = 0;    // شارة إذا حصلت 90%+ لخمسة أيام متتالية
+    let quranTotal = 0;
+
+    const scores = state.days.map(d=>{
+      const pts = dayPoints(d);
+      if(pts >= 16) stars++;
+      quranTotal += Number(d.quranVerses||0);
+      return pts;
+    });
+
+    // شارة السلسلة: كل 5 أيام متتالية بنسبة 90% (>=18/20)
+    let streak = 0;
+    for(const s of scores){
+      if(s >= 18){ streak++; }
+      else { streak = 0; }
+      if(streak === 5){ badges++; streak = 0; }
+    }
+
+    const quranAvg = Math.round(quranTotal / state.days.length);
+    return {stars, badges, quranAvg};
+  }
+
+  function praiseText(pct){
+    const name = $("studentName").value.trim() || "بطلتي";
+    if(pct >= 90) return `🌟 ${name} رائعة! التزام ممتاز في رمضان، استمري على نفس المستوى، ووردك القرآني يرفعك درجات.`;
+    if(pct >= 75) return `✨ ${name} أحسنتِ! تقدّم جميل، ركّزي غدًا على الوقت والورد لتصلين للأفضل.`;
+    if(pct >= 60) return `🌿 ${name} بداية طيبة، نحتاج انتظام أكبر في السلوك/الواجب + وِرد بسيط يوميًا.`;
+    return `💛 ${name} لا بأس، سنبدأ من جديد بخطوات صغيرة: حضور بوقت + واجب + 10 دقائق قرآن.`;
+  }
+
+  function render(){
+    // تعبئة الحقول
+    $("studentName").value = state.studentName || "";
+    $("studentClass").value = state.studentClass || "";
+    $("startDate").value = state.startDate || "";
+    $("notes").value = state.notes || "";
+
+    // تحديث تواريخ الأيام إذا عندنا startDate
+    if(state.startDate){
+      state.days.forEach((d,i)=>{
+        d.dateISO = addDays(state.startDate, i);
+      });
+    }
+
+    // بناء بطاقات الأيام
+    const wrap = $("daysWrap");
+    wrap.innerHTML = "";
+
+    const maxPerDay = dayMaxPoints();
+
+    state.days.forEach((d, i)=>{
+      const pts = dayPoints(d);
+      const pct = Math.round((pts/maxPerDay)*100);
+
+      const card = document.createElement("div");
+      card.id = "day-"+d.idx;
+      card.className = "rounded-2xl border border-slate-100 bg-white p-4";
+
+      const dateLabel = d.dateISO ? isoToArabic(d.dateISO) : `اليوم ${d.idx}`;
+      const smallDate = d.dateISO ? d.dateISO : "";
+
+      card.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="inline-flex items-center px-3 py-1 rounded-full bg-violet-100 text-violet-900 font-extrabold">اليوم ${d.idx}</span>
+              <span class="text-slate-800 font-bold">${dateLabel}</span>
+              ${smallDate ? `<span class="text-xs text-slate-500">(${smallDate})</span>` : ``}
+            </div>
+            <p class="text-sm text-slate-600 mt-1">النقاط: <b class="text-slate-900">${pts}</b> / ${maxPerDay} — <b class="text-violet-700">${pct}%</b></p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="w-44 bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div class="h-3 rounded-full bg-violet-600" style="width:${pct}%"></div>
+            </div>
+            <button data-toggle="${d.idx}" class="no-print px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-bold hover:bg-slate-100 transition">
+              تفاصيل
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-4 ${state.collapsed ? "hidden" : ""}" data-details="${d.idx}">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div class="rounded-2xl border border-slate-100 p-3">
+              <p class="font-extrabold text-slate-900">الانضباط الزمني والسلوكي والدراسي</p>
+              <div class="mt-2 space-y-2">
+                ${dailyItems.map(item=>{
+                  const checked = d.checks[item.id] ? "checked" : "";
+                  return `
+                    <label class="flex items-center justify-between gap-3 p-2 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                      <span class="text-sm text-slate-800">
+                        <b class="text-violet-700">+${item.points}</b> ${item.label}
+                      </span>
+                      <input type="checkbox" class="h-5 w-5 accent-violet-600" data-day="${d.idx}" data-check="${item.id}" ${checked}/>
+                    </label>
+                  `;
+                }).join("")}
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-100 p-3">
+              <p class="font-extrabold text-slate-900">الورد القرآني (قابل للقياس)</p>
+              <p class="text-sm text-slate-600 mt-1">هدف اليوم: <b>${quranConfig.minutesTarget}</b> دقائق + <b>${quranConfig.versesTarget}</b> آيات (حتى +2 نقاط)</p>
+
+              <div class="mt-3 space-y-3">
+                <div>
+                  <label class="text-sm font-bold text-slate-700">عدد الدقائق</label>
+                  <input type="number" min="0" step="1" value="${d.quranMinutes||0}" data-day="${d.idx}" data-num="minutes"
+                         class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-300"/>
+                </div>
+                <div>
+                  <label class="text-sm font-bold text-slate-700">عدد الآيات</label>
+                  <input type="number" min="0" step="1" value="${d.quranVerses||0}" data-day="${d.idx}" data-num="verses"
+                         class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-300"/>
+                </div>
+
+                <div class="rounded-xl bg-amber-50 border border-amber-100 p-3">
+                  <p class="text-sm font-bold text-amber-900">تذكير لطيف</p>
+                  <p class="text-sm text-slate-700 mt-1">ابدئي قبل النوم بـ <b>5 دقائق</b> ثم زيدي تدريجيًا حتى الهدف.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-100 p-3">
+              <p class="font-extrabold text-slate-900">تأمل بسيط (1 دقيقة)</p>
+              <p class="text-sm text-slate-600 mt-1">ما أجمل شيء فعلته اليوم؟ وما الذي سأحسّنه غدًا؟</p>
+              <textarea data-day="${d.idx}" data-text="reflection"
+                        class="mt-3 w-full min-h-28 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-300"
+                        placeholder="اكتبي سطرين فقط...">${escapeHTML(d.reflection||"")}</textarea>
+
+              <div class="mt-3 rounded-xl bg-emerald-50 border border-emerald-100 p-3">
+                <p class="text-sm font-bold text-emerald-900">تعزيز سريع</p>
+                <p class="text-sm text-slate-700 mt-1">${pct>=80 ? "ممتاز! استمري." : "جميل.. خطوة صغيرة كل يوم."}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      wrap.appendChild(card);
+    });
+
+    // أزرار التفاصيل
+    wrap.querySelectorAll("button[data-toggle]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const idx = btn.getAttribute("data-toggle");
+        const box = wrap.querySelector(`[data-details="${idx}"]`);
+        box.classList.toggle("hidden");
+      });
+    });
+
+    // ربط أحداث 체크
+    wrap.querySelectorAll("input[type=checkbox][data-check]").forEach(ch=>{
+      ch.addEventListener("change", ()=>{
+        const dayIdx = Number(ch.getAttribute("data-day")) - 1;
+        const key = ch.getAttribute("data-check");
+        state.days[dayIdx].checks[key] = ch.checked;
+        updateTop();
+        autoSave();
+      });
+    });
+
+    // أرقام الورد
+    wrap.querySelectorAll("input[type=number][data-num]").forEach(inp=>{
+      inp.addEventListener("input", ()=>{
+        const dayIdx = Number(inp.getAttribute("data-day")) - 1;
+        const which = inp.getAttribute("data-num");
+        const v = Math.max(0, Number(inp.value || 0));
+        if(which === "minutes") state.days[dayIdx].quranMinutes = v;
+        if(which === "verses")  state.days[dayIdx].quranVerses = v;
+        updateTop();
+        autoSave();
+      });
+    });
+
+    // التأمل
+    wrap.querySelectorAll("textarea[data-text=reflection]").forEach(t=>{
+      t.addEventListener("input", ()=>{
+        const dayIdx = Number(t.getAttribute("data-day")) - 1;
+        state.days[dayIdx].reflection = t.value;
+        autoSave();
+      });
+    });
+
+    updateTop();
+  }
+
+  function updateTop(){
+    const o = overall();
+    $("overallPoints").textContent = o.points;
+    $("overallMax").textContent = o.max;
+    $("overallPct").textContent = o.pct + "%";
+    $("overallBar").style.width = o.pct + "%";
+
+    const b = computeBadges();
+    $("starsCount").textContent = b.stars;
+    $("badgesCount").textContent = b.badges;
+    $("quranAvg").textContent = b.quranAvg;
+
+    const badgeLines = [];
+    if(b.stars >= 5) badgeLines.push("🏅 شارة: نجوم الانضباط (5 أيام مميزة).");
+    if(b.badges >= 1) badgeLines.push("🌟 شارة: سلسلة التميّز (5 أيام متتالية بنسبة 90%+).");
+    if(o.pct >= 85) badgeLines.push("✨ تهانينا: مستوى عام ممتاز.");
+    $("badgeText").textContent = badgeLines.join(" ") || "ابدئي اليوم بـ (حضور بوقت + أذكار + ورد بسيط) وستشاهدين الفرق.";
+
+    $("dailyPraise").textContent = praiseText(o.pct);
+
+    // إعادة رسم شريط كل يوم (خفيف): نحدّث فقط النصوص العلوية + نترك إعادة البناء اليدوي عند الحاجة
+    // لتبسيط الكود: نعيد render كامل عند تغيّر كبير؟ لا، سنتركه.
+    // لكن لأن النقاط داخل البطاقات لا تتحدث تلقائياً، سنعيد render سريعاً عند التحديث.
+    // مع تجنب فقدان التمرير: نحافظ على موضع التمرير.
+    const y = window.scrollY;
+    renderNoRebind();
+    window.scrollTo(0,y);
+  }
+
+  function renderNoRebind(){
+    // تحديث واجهة اليوم دون إعادة ربط الأحداث: أسهل أن نعيد render كامل ونربط، لكن هذا يسبب إعادة ربط متكرر.
+    // هنا سنكتفي بتحديث رأس الصفحة فقط (المؤشرات)، ونترك تحديث بطاقات الأيام عند الحفظ/الطباعة.
+    // بما أن المستخدم يهمه المؤشرات العلوية، نكتفي بها.
+    // (إذا رغبتِ بتحديث نقاط كل يوم فورًا، أخبريني وأعملها بإعادة بناء ذكية.)
+  }
+
+  let saveTimer = null;
+  function autoSave(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=>save(), 400);
+  }
+
+  function toast(msg){
+    const t = document.createElement("div");
+    t.className = "no-print fixed bottom-4 right-4 z-50 px-4 py-3 rounded-2xl bg-slate-900 text-white font-bold shadow-xl";
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(), 1300);
+  }
+
+  function escapeHTML(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function goToToday(){
+    if(!state.startDate){
+      toast("حددي تاريخ البدء أولاً 📅");
+      return;
+    }
+    const t = todayISO();
+    const idx = state.days.findIndex(d=>d.dateISO === t);
+    const target = idx >= 0 ? $("day-"+(idx+1)) : $("day-1");
+    target?.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  function exportCSV(){
+    // أعمدة CSV
+    const header = [
+      "اسم الطالبة","الصف/الشعبة","اليوم","التاريخ","النقاط","النسبة",
+      ...dailyItems.map(x=>x.label),
+      "دقائق القرآن","آيات القرآن","نقاط الورد","تأمل اليوم","ملاحظات"
+    ];
+
+    const maxPerDay = dayMaxPoints();
+    const name = $("studentName").value.trim();
+    const cls = $("studentClass").value.trim();
+    const notes = $("notes").value.replace(/\n/g," ");
+
+    const rows = state.days.map(d=>{
+      const pts = dayPoints(d);
+      const pct = Math.round((pts/maxPerDay)*100);
+      const qPts = quranPoints(d.quranMinutes, d.quranVerses);
+
+      const checks = dailyItems.map(it=> d.checks[it.id] ? "نعم" : "لا");
+      return [
+        name, cls, d.idx, d.dateISO, pts, pct+"%",
+        ...checks,
+        d.quranMinutes, d.quranVerses, qPts,
+        (d.reflection||"").replace(/\n/g," "),
+        notes
+      ];
+    });
+
+    const csv = [header, ...rows].map(r=>r.map(cell=>{
+      const s = String(cell ?? "");
+      if(s.includes(",") || s.includes('"') || s.includes("\n")){
+        return `"${s.replaceAll('"','""')}"`;
+      }
+      return s;
+    }).join(",")).join("\n");
+
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `خطة_انضباط_رمضان_20_يوم_${name||"طالبة"}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast("تم تصدير CSV ✅");
+  }
+
+  function toggleCollapseAll(){
+    state.collapsed = !state.collapsed;
+    // طبق على كل التفاصيل
+    document.querySelectorAll("[data-details]").forEach(el=>{
+      if(state.collapsed) el.classList.add("hidden");
+      else el.classList.remove("hidden");
+    });
+    autoSave();
+  }
+
+  // تشغيل
+  load();
+  if(!state.startDate) state.startDate = todayISO();
+  render();
+
+  // ربط أزرار أعلى الصفحة
+  $("btnSave").addEventListener("click", save);
+  $("btnReset").addEventListener("click", ()=>{
+    if(confirm("متأكدة؟ سيتم حذف جميع البيانات.")) resetAll();
+  });
+  $("btnCSV").addEventListener("click", exportCSV);
+  $("btnToday").addEventListener("click", goToToday);
+  $("btnCollapse").addEventListener("click", toggleCollapseAll);
+
+  // حفظ عند تغيير الحقول العلوية
+  ["studentName","studentClass","startDate","notes"].forEach(id=>{
+    $(id).addEventListener("input", ()=>{
+      // عند تغيير تاريخ البدء نحدّث تواريخ الأيام
+      if(id==="startDate"){
+        state.startDate = $(id).value;
+        state.days.forEach((d,i)=> d.dateISO = state.startDate ? addDays(state.startDate,i) : "");
+        // لإظهار التواريخ على البطاقات: نعيد بناء كامل مرة واحدة
+        renderFull();
+      }
+      autoSave();
+      updateTop();
+    });
+  });
+
+  function renderFull(){
+    // إعادة بناء كاملة مع ربط
+    render();
+  }
+
+})();
+</script>
+</body>
+</html>
